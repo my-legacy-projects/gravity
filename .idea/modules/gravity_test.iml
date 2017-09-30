@@ -12,6 +12,8 @@
     <orderEntry type="module" module-name="gravity_main" />
     <orderEntry type="library" scope="PROVIDED" name="Gradle: org.projectlombok:lombok:1.16.4" level="project" />
     <orderEntry type="library" name="Gradle: org.projectlombok:lombok:1.16.18" level="project" />
+    <orderEntry type="library" name="Gradle: org.kohsuke.metainf-services:metainf-services:1.1" level="project" />
+    <orderEntry type="library" name="Gradle: commons-cli:commons-cli:1.4" level="project" />
     <orderEntry type="library" name="Gradle: org.mariadb.jdbc:mariadb-java-client:2.1.2" level="project" />
     <orderEntry type="library" name="Gradle: com.google.guava:guava:23.0" level="project" />
     <orderEntry type="library" name="Gradle: com.zaxxer:HikariCP:2.7.1" level="project" />

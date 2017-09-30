@@ -48,8 +48,10 @@ repositories {
 dependencies {
     // Provided at runtime
     compile group: 'org.projectlombok', name: 'lombok', version: '1.16.18'
+    compile group: 'org.kohsuke.metainf-services', name: 'metainf-services', version: '1.1'
 
     // Shaded using ShadowJar
+    compile group: 'commons-cli', name: 'commons-cli', version: '1.4'
     compile group: 'org.mariadb.jdbc', name: 'mariadb-java-client', version: '2.1.2'
     compile group: 'ro.pippo', name: 'pippo', version: '1.5.0'
     compile group: 'com.google.guava', name: 'guava', version: '23.0'
@@ -68,6 +70,7 @@ shadowJar {
     relocate 'com.zaxxer.hikari', 'club.wontfix.aero.libs.hikaricp'
 
     dependencies {
-        include(dependency('::'))
+        exclude(dependency('org.projectlombok::lombok::1.16.18'))
+        exclude(dependency('org.kohsuke.metainf-services::metainf-services::1.1'))
     }
 }
