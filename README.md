@@ -20,7 +20,7 @@ Install the required dependencies:
 ```bash
 $ git clone git@github.com:Marc3842h/gravity.git
 $ ./gradlew shadowJar
-# Deploy the gravity.jar file to the location where you want it to life
+# Deploy the gravity.jar file to the location, where you want it to live
 $ java -jar gravity.jar --ip 127.0.0.1 --port 7777
 ```
 
@@ -35,3 +35,4 @@ Visit the `LICENSE.txt` file for more information.
 
 
 
+MarcIsAWeeb © 2k17-2k17
