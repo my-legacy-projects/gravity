@@ -6,6 +6,7 @@ buildscript {
     dependencies {
         classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.3'
         classpath 'io.franzbecker:gradle-lombok:1.6'
+        classpath 'net.ltgt.gradle:gradle-apt-plugin:0.12'
     }
 }
 
@@ -13,6 +14,7 @@ apply plugin: 'java'
 apply plugin: 'idea'
 apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'io.franzbecker.gradle-lombok'
+apply plugin: 'net.ltgt.apt'
 
 println """
 ***************************************
@@ -47,8 +49,10 @@ repositories {
 
 dependencies {
     // Provided at runtime
-    compile group: 'org.projectlombok', name: 'lombok', version: '1.16.18'
-    compile group: 'org.kohsuke.metainf-services', name: 'metainf-services', version: '1.1'
+    compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.16.18'
+    apt group: 'org.projectlombok', name: 'lombok', version: '1.16.18'
+    compileOnly group: 'org.kohsuke.metainf-services', name: 'metainf-services', version: '1.1'
+    apt group: 'org.kohsuke.metainf-services', name: 'metainf-services', version: '1.1'
 
     // Shaded using ShadowJar
     compile group: 'com.virtlink.commons', name: 'commons-configuration2-jackson', version: '0.6.1'
@@ -75,5 +79,13 @@ shadowJar {
     dependencies {
         exclude(dependency('org.projectlombok:lombok:1.16.18'))
         exclude(dependency('org.kohsuke.metainf-services:metainf-services:1.1'))
+    }
+}
+
+jar {
+    manifest {
+        attributes "Manifest-Version": "1.0"
+        attributes "Created-By": "Marc3842h (Project Spartan)"
+        attributes "Main-Class": "club.wontfix.gravity.Gravity"
     }
 }

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module external.system.module.type="sourceSet" type="JAVA_MODULE" version="4">
+  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8">
+    <output url="file://$MODULE_DIR$/../../out/java/classes" />
+    <exclude-output />
+    <content url="file://$MODULE_DIR$/../../src/java">
+      <sourceFolder url="file://$MODULE_DIR$/../../src/java/java" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/../../src/java/resources" type="java-resource" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" scope="PROVIDED" name="Gradle: org.projectlombok:lombok:1.16.4" level="project" />
+  </component>
+</module>

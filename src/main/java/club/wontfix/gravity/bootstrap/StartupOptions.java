@@ -13,6 +13,11 @@ public class StartupOptions {
         config.setRequired(false);
         options.addOption(config);
 
+        Option address = new Option("a", "address", true,
+                "IP Address on which Pippo should be bound to");
+        address.setRequired(false);
+        options.addOption(address);
+
         Option port = new Option("p", "port", true,
                 "Port that the auth server should listen on");
         port.setRequired(false);

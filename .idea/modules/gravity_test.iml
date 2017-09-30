@@ -9,10 +9,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" scope="PROVIDED" name="Gradle: org.projectlombok:lombok:1.16.4" level="project" />
     <orderEntry type="module" module-name="gravity_main" />
-    <orderEntry type="library" name="Gradle: org.projectlombok:lombok:1.16.18" level="project" />
-    <orderEntry type="library" name="Gradle: org.kohsuke.metainf-services:metainf-services:1.1" level="project" />
     <orderEntry type="library" name="Gradle: com.virtlink.commons:commons-configuration2-jackson:0.6.1" level="project" />
     <orderEntry type="library" name="Gradle: org.apache.commons:commons-configuration2:2.1.1" level="project" />
     <orderEntry type="library" name="Gradle: commons-cli:commons-cli:1.4" level="project" />
@@ -22,6 +19,7 @@
     <orderEntry type="library" name="Gradle: com.zaxxer:HikariCP:2.7.1" level="project" />
     <orderEntry type="library" name="Gradle: org.slf4j:slf4j-simple:1.7.25" level="project" />
     <orderEntry type="library" name="Gradle: com.moandjiezana.toml:toml4j:0.7.2" level="project" />
+    <orderEntry type="library" name="Gradle: org.projectlombok:lombok:1.16.4" level="project" />
     <orderEntry type="library" name="Gradle: junit:junit:4.12" level="project" />
     <orderEntry type="library" name="Gradle: com.fasterxml.jackson.core:jackson-databind:2.7.5" level="project" />
     <orderEntry type="library" name="Gradle: commons-logging:commons-logging:1.2" level="project" />
