@@ -8,14 +8,14 @@ public class StartupOptions {
     public Options getOptions() {
         Options options = new Options();
 
-        Option ipAddress = new Option("i", "ip", true,
-                "IP Address that the auth server should be bound to");
-        ipAddress.setRequired(true);
-        options.addOption(ipAddress);
+        Option config = new Option("c", "config", true,
+                "Path to config.json file for Gravity");
+        config.setRequired(false);
+        options.addOption(config);
 
         Option port = new Option("p", "port", true,
                 "Port that the auth server should listen on");
-        port.setRequired(true);
+        port.setRequired(false);
         options.addOption(port);
 
         Option mode = new Option("m", "mode", true,

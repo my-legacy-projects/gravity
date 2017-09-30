@@ -1,0 +1,15 @@
+// Gravity configuration file
+{
+   "server": {
+      "port": 8080,
+      "mode": "prod",
+      "reload": false
+   },
+   "database": {
+      "address": "127.0.0.1",
+      "port": 3306,
+      "database": "gravity",
+      "username": "root",
+      "password": "passw0rd"
+   }
+}
