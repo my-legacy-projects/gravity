@@ -78,7 +78,6 @@ public class EasyDatabase {
         return User.NULL;
     }
 
-    @SneakyThrows(SQLException.class)
     public boolean doesUserExist(@NonNull User user) {
         return isVerifyIDBound(user.getVerifyID()) && isUniqueIDBound(user.getUniqueID()) && isNameBound(user.getName());
     }

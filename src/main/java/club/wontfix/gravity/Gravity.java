@@ -2,11 +2,17 @@ package club.wontfix.gravity;
 
 import club.wontfix.gravity.bootstrap.StartupOptions;
 import club.wontfix.gravity.database.Database;
-import club.wontfix.gravity.easy.EasyDatabase;
 import club.wontfix.gravity.database.impl.MariaDatabase;
-import club.wontfix.gravity.events.ConsoleInputEvent;
+import club.wontfix.gravity.easy.EasyDatabase;
+import club.wontfix.gravity.events.impl.bootstrap.GravityStartEvent;
+import club.wontfix.gravity.events.impl.bootstrap.GravityStopEvent;
+import club.wontfix.gravity.events.impl.console.ConsoleInputEvent;
+import club.wontfix.gravity.events.impl.error.GeneralExceptionEvent;
+import club.wontfix.gravity.events.impl.error.SQLExceptionEvent;
+import club.wontfix.gravity.listeners.ConsoleInputListener;
+import club.wontfix.gravity.listeners.ShutdownListener;
+import club.wontfix.gravity.routes.login.LoginRoute;
 import com.google.common.eventbus.EventBus;
-import com.google.common.eventbus.Subscribe;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.virtlink.commons.configuration2.jackson.JsonConfiguration;
@@ -27,11 +33,13 @@ import ro.pippo.core.Pippo;
 import ro.pippo.core.route.CSRFHandler;
 import ro.pippo.core.route.PublicResourceHandler;
 import ro.pippo.core.route.WebjarsResourceHandler;
+import ro.pippo.freemarker.FreemarkerTemplateEngine;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.sql.SQLException;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
@@ -175,47 +183,100 @@ public class Gravity extends Application {
 
         // Event Listeners
         getInstance().getEventBus().register(getInstance());
+        getInstance().getEventBus().register(new ConsoleInputListener());
+        getInstance().getEventBus().register(new ShutdownListener());
 
         getInstance().setPippo(new Pippo(getInstance()));
         getInstance().getPippo().getServer().getSettings().host(address);
         getInstance().getPippo().getServer().getSettings().port(port);
-        getInstance().getPippo().addResourceRoute(new PublicResourceHandler());
-        getInstance().getPippo().addResourceRoute(new WebjarsResourceHandler());
         getInstance().getPippo().start();
 
-        getInstance().getLogger().info("Hello and welcome to Gravity.");
-        getInstance().getLogger().info("Type \"help\" to receive a list of commands.");
+        GravityStartEvent startEvent = new GravityStartEvent();
+        startEvent.addResponse("Hello and welcome to Gravity.");
+        startEvent.addResponse("Type \"help\" to receive a list of commands.");
+        getInstance().getEventBus().post(startEvent);
+        if (startEvent.getResponses().size() > 0) {
+            for (int i = 0; i < startEvent.getResponses().size(); i++) {
+                getInstance().getLogger().info(startEvent.getResponses().get(i));
+            }
+        }
 
         getInstance().setConsoleScanner(new Scanner(System.in));
         String input = getInstance().getConsoleScanner().nextLine();
 
-        ConsoleInputEvent event = new ConsoleInputEvent(input);
-        getInstance().getEventBus().post(event);
-        if(event.getResponse() != null) {
-            getInstance().getLogger().info(event.getResponse());
+        ConsoleInputEvent inputEvent = new ConsoleInputEvent(input);
+        getInstance().getEventBus().post(inputEvent);
+        if (inputEvent.getResponses().size() > 0) {
+            for (int i = 0; i < inputEvent.getResponses().size(); i++) {
+                getInstance().getLogger().info(inputEvent.getResponses().get(i));
+            }
         }
     }
 
     @Override
     protected void onInit() {
-        // Init Web Server
-        ANY("/*", new CSRFHandler());
+        setTemplateEngine(new FreemarkerTemplateEngine());
+
+        setUploadLocation("uploades");
+
+        // Add routes for static content
+        addResourceRoute(new PublicResourceHandler());
+        addResourceRoute(new WebjarsResourceHandler());
+
+        getRouter().ignorePaths("/favicon.ico");
+
+        // Handle errors
+        getErrorHandler().setExceptionHandler(SQLException.class, (ex, context) -> {
+            SQLExceptionEvent exceptionEvent = new SQLExceptionEvent((SQLException) ex);
+            getEventBus().post(exceptionEvent);
+            if (exceptionEvent.isCancelled()) {
+                context.render(exceptionEvent.getTemplateToRender());
+            } else {
+                getErrorHandler().handle(exceptionEvent.getResponseCode(), context);
+            }
+        });
+
+        getErrorHandler().setExceptionHandler(Exception.class, (ex, context) -> {
+            if (!(ex instanceof SQLException)) {
+                GeneralExceptionEvent exceptionEvent = new GeneralExceptionEvent(ex);
+                getEventBus().post(exceptionEvent);
+                if (exceptionEvent.isCancelled()) {
+                    context.render(exceptionEvent.getTemplateToRender());
+                } else {
+                    getErrorHandler().handle(exceptionEvent.getResponseCode(), context);
+                }
+            }
+        });
+
+        GET("/", context -> getErrorHandler().handle(404, context));
+
+        addBeforeFilters();
+
+        // Routes
+        addRouteGroup(new LoginRoute());
+        //addRouteGroup(new APIRoute());
+
+        addAfterFilters();
     }
 
     @Override
     protected void onDestroy() {
-        if(getInstance().getDatabase().isConnected()) {
-            getInstance().getDatabase().disconnect();
+        GravityStopEvent stopEvent = new GravityStopEvent();
+        stopEvent.addResponse("Thank you and have a nice day.");
+        getEventBus().post(stopEvent);
+        if (stopEvent.getResponses().size() > 0) {
+            for (int i = 0; i < stopEvent.getResponses().size(); i++) {
+                getInstance().getLogger().info(stopEvent.getResponses().get(i));
+            }
         }
-        // Destroy Web Server
     }
 
-    @Subscribe
-    public void onConsoleInput(ConsoleInputEvent event) {
-        if(event.getCommand().equalsIgnoreCase("stop")) {
-            event.setResponse("Thank you and have a nice day.");
-            getInstance().getPippo().stop();
-        }
+    private void addBeforeFilters() {
+        ANY("/.*", new CSRFHandler());
+    }
+
+    private void addAfterFilters() {
+        // ANY("/.*", routeContext -> getInstance().getDatabase().disconnect()).runAsFinally();
     }
 
 }

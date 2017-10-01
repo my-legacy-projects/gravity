@@ -6,6 +6,6 @@ import lombok.Setter;
 public abstract class Cancellable {
 
     @Getter @Setter
-    public boolean cancelled = false;
+    private boolean cancelled = false;
 
 }
