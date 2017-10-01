@@ -2,7 +2,7 @@ package club.wontfix.gravity;
 
 import club.wontfix.gravity.bootstrap.StartupOptions;
 import club.wontfix.gravity.database.Database;
-import club.wontfix.gravity.database.MariaDatabase;
+import club.wontfix.gravity.database.impl.MariaDatabase;
 import club.wontfix.gravity.events.ConsoleInputEvent;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
@@ -10,8 +10,6 @@ import com.virtlink.commons.configuration2.jackson.JsonConfiguration;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.cli.*;
-import org.apache.commons.configuration2.Configuration;
-import org.apache.commons.configuration2.FileBasedConfiguration;
 import org.apache.commons.configuration2.builder.DefaultReloadingDetectorFactory;
 import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
 import org.apache.commons.configuration2.builder.fluent.Parameters;
@@ -79,7 +77,7 @@ public class Gravity extends Application {
             configPath = "config.json";
         }
 
-        File file = new File(Paths.get(".").toAbsolutePath().normalize().toFile(), "config.json");
+        File file = new File(Paths.get(".").toAbsolutePath().normalize().toFile(), configPath);
         if(!file.exists()) {
             try {
                 Files.copy(Gravity.class.getResourceAsStream("/config.json"), file.toPath());
@@ -159,6 +157,7 @@ public class Gravity extends Application {
         try {
             getInstance().setDatabase(MariaDatabase.create(dbAddress, dbPort, dbDatabase, dbUsername, dbPassword));
             getInstance().getDatabase().connect();
+            getInstance().getDatabase().setup();
         } catch (Exception ex) {
             getInstance().getLogger().error("Could not connect to MariaDB database.", ex);
             return;
