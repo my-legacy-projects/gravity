@@ -11,7 +11,8 @@ import club.wontfix.gravity.events.impl.error.GeneralExceptionEvent;
 import club.wontfix.gravity.events.impl.error.SQLExceptionEvent;
 import club.wontfix.gravity.listeners.ConsoleInputListener;
 import club.wontfix.gravity.listeners.ShutdownListener;
-import club.wontfix.gravity.routes.login.LoginRoute;
+import club.wontfix.gravity.routes.general.VerifyRoutes;
+import club.wontfix.gravity.routes.verify.Routes;
 import com.google.common.eventbus.EventBus;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -253,8 +254,8 @@ public class Gravity extends Application {
         addBeforeFilters();
 
         // Routes
-        addRouteGroup(new LoginRoute());
-        //addRouteGroup(new APIRoute());
+        addRouteGroup(new Routes());
+        addRouteGroup(new VerifyRoutes());
 
         addAfterFilters();
     }
@@ -272,7 +273,7 @@ public class Gravity extends Application {
     }
 
     private void addBeforeFilters() {
-        ANY("/.*", new CSRFHandler());
+        ANY("/.*", new CSRFHandler()).named("CSRF security handler");
     }
 
     private void addAfterFilters() {
