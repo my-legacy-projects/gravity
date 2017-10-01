@@ -62,8 +62,9 @@ public class MariaDatabase implements Database {
 
     @Override
     public void setup() throws SQLException {
-        update("CREATE TABLE IF NOT EXISTS `gravity` " +
-                "(uniqueID VARCHAR(64), verifyID VARCHAR(64), machineName VARCHAR(64), dev BOOLEAN);");
+        update("CREATE TABLE IF NOT EXISTS `gravity` (" +
+                "name VARCHAR(64), uniqueID VARCHAR(64), verifyID VARCHAR(64), machineName VARCHAR(64), dev BOOLEAN" +
+                ");");
     }
 
     @Override

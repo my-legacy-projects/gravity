@@ -64,18 +64,13 @@ dependencies {
     compile group: 'com.google.guava', name: 'guava', version: '23.0'
     compile group: 'com.zaxxer', name: 'HikariCP', version: '2.7.1'
     compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.25'
-    compile group: 'com.moandjiezana.toml', name: 'toml4j', version: '0.7.2'
+    compile group: 'org.owasp.esapi', name: 'esapi', version: '2.1.0.1'
 
     // Test
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
 
 shadowJar {
-    relocate 'com.google', 'club.wontfix.aero.libs.google'
-    relocate 'org.slf4j', 'club.wontfix.aero.libs.slf4j'
-    relocate 'com.moandjiezana.toml', 'club.wontfix.aero.libs.toml4j'
-    relocate 'com.zaxxer.hikari', 'club.wontfix.aero.libs.hikaricp'
-
     dependencies {
         exclude(dependency('org.projectlombok:lombok:1.16.18'))
         exclude(dependency('org.kohsuke.metainf-services:metainf-services:1.1'))

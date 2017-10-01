@@ -2,12 +2,16 @@ package club.wontfix.gravity;
 
 import club.wontfix.gravity.bootstrap.StartupOptions;
 import club.wontfix.gravity.database.Database;
+import club.wontfix.gravity.easy.EasyDatabase;
 import club.wontfix.gravity.database.impl.MariaDatabase;
 import club.wontfix.gravity.events.ConsoleInputEvent;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.virtlink.commons.configuration2.jackson.JsonConfiguration;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 import org.apache.commons.cli.*;
 import org.apache.commons.configuration2.builder.DefaultReloadingDetectorFactory;
@@ -40,23 +44,29 @@ public class Gravity extends Application {
     @Getter(lazy = true)
     private final Logger logger = LoggerFactory.getLogger(Gravity.class);
 
-    @Getter @Setter
+    @Getter @Setter(onParam = @__(@NonNull))
     private CommandLine cmdArgs;
 
-    @Getter @Setter
+    @Getter @Setter(onParam = @__(@NonNull))
     private JsonConfiguration config;
 
-    @Getter @Setter
+    @Getter @Setter(onParam = @__(@NonNull))
     private Scanner consoleScanner;
 
-    @Getter @Setter
+    @Getter @Setter(onParam = @__(@NonNull))
     private Database database;
 
+    @Getter(lazy = true)
+    private final EasyDatabase easyDatabase = new EasyDatabase();
+
     @Getter
-    private EventBus eventBus = new EventBus();
+    private final EventBus eventBus = new EventBus();
 
     @Getter @Setter
     private Pippo pippo;
+
+    @Getter(lazy = true)
+    private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
     public static void main(String[] args) {
         getInstance().getLogger().info("Starting Gravity...");
