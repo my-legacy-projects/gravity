@@ -6,18 +6,16 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
+@Getter
 @RequiredArgsConstructor
 public class GeneralExceptionEvent extends Cancellable {
 
-    @Getter
     @NonNull
     private final Exception exception;
 
-    @Getter
     @Setter
     private int responseCode = 500;
 
-    @Getter
     @Setter
     private String templateToRender = "error.html";
 

@@ -1,8 +1,9 @@
 package club.wontfix.gravity;
 
 import club.wontfix.gravity.bootstrap.StartupOptions;
+import club.wontfix.gravity.commands.CommandManager;
+import club.wontfix.gravity.commands.impl.*;
 import club.wontfix.gravity.database.Database;
-import club.wontfix.gravity.database.impl.MariaDatabase;
 import club.wontfix.gravity.easy.EasyDatabase;
 import club.wontfix.gravity.events.impl.bootstrap.GravityStartEvent;
 import club.wontfix.gravity.events.impl.bootstrap.GravityStopEvent;
@@ -11,8 +12,8 @@ import club.wontfix.gravity.events.impl.error.GeneralExceptionEvent;
 import club.wontfix.gravity.events.impl.error.SQLExceptionEvent;
 import club.wontfix.gravity.listeners.ConsoleInputListener;
 import club.wontfix.gravity.listeners.ShutdownListener;
-import club.wontfix.gravity.routes.general.VerifyRoutes;
-import club.wontfix.gravity.routes.verify.Routes;
+import club.wontfix.gravity.routes.general.Routes;
+import club.wontfix.gravity.routes.verify.VerifyRoutes;
 import com.google.common.eventbus.EventBus;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -68,6 +69,9 @@ public class Gravity extends Application {
     @Getter(lazy = true)
     private final EasyDatabase easyDatabase = new EasyDatabase();
 
+    @Getter(lazy = true)
+    private final CommandManager commandManager = new CommandManager();
+
     @Getter
     private final EventBus eventBus = new EventBus();
 
@@ -77,7 +81,12 @@ public class Gravity extends Application {
     @Getter(lazy = true)
     private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
+    @Getter
+    @Setter
+    private boolean running = false;
+
     public static void main(String[] args) {
+        getInstance().setRunning(true);
         getInstance().getLogger().info("Starting Gravity...");
 
         Options options = new StartupOptions().getOptions();
@@ -92,12 +101,12 @@ public class Gravity extends Application {
         }
 
         String configPath = getInstance().getCmdArgs().getOptionValue("config");
-        if(configPath == null) {
+        if (configPath == null) {
             configPath = "config.json";
         }
 
         File file = new File(Paths.get(".").toAbsolutePath().normalize().toFile(), configPath);
-        if(!file.exists()) {
+        if (!file.exists()) {
             try {
                 Files.copy(Gravity.class.getResourceAsStream("/config.json"), file.toPath());
             } catch (IOException ex) {
@@ -121,7 +130,7 @@ public class Gravity extends Application {
         }
 
         String address = getInstance().getCmdArgs().getOptionValue("address");
-        if(address == null) {
+        if (address == null) {
             try {
                 address = getInstance().getConfig().getString("server.address");
             } catch (NoSuchElementException ex) {
@@ -134,25 +143,26 @@ public class Gravity extends Application {
         int port = -1;
         try {
             String cmdPort = getInstance().getCmdArgs().getOptionValue("port");
-            if(cmdPort != null) {
+            if (cmdPort != null) {
                 port = Integer.parseInt(cmdPort);
             }
         } catch (NumberFormatException ex) {
-            getInstance().getLogger().error("Could not parse \"{0}\" to a valid port (int).",
+            getInstance().getLogger().error("Could not parse \"{}\" to a valid port (int).",
                     getInstance().getCmdArgs().getOptionValue("port"));
-            getInstance().getLogger().debug("NumberFormatException (Gravity::main)", ex);
+            getInstance().getLogger().debug("", ex);
             return;
         }
-        if(port == -1) {
+        if (port == -1) {
             port = getInstance().getConfig().getInt("server.port");
         }
 
         String mode = getInstance().getCmdArgs().getOptionValue("mode");
-        if(mode == null) {
+        if (mode == null) {
             mode = getInstance().getConfig().getString("server.mode");
         }
+        mode = mode.toLowerCase();
 
-        switch (mode.toLowerCase()) {
+        switch (mode) {
             case "dev":
             case "prod":
             case "test":
@@ -162,25 +172,43 @@ public class Gravity extends Application {
                 break;
         }
 
-        System.setProperty("pippo.mode", mode.toUpperCase());
+        System.setProperty("pippo.mode", mode);
         System.setProperty("pippo.reload.enabled", String.valueOf(
-                mode.equalsIgnoreCase("dev") || getInstance().getConfig().getString("server.mode").equalsIgnoreCase("dev")
+                mode.equalsIgnoreCase("dev") || getInstance().getConfig().getBoolean("server.reload")
         ));
 
-        String dbAddress = getInstance().getConfig().getString("database.address");
-        int dbPort = getInstance().getConfig().getInt("database.port");
-        String dbDatabase = getInstance().getConfig().getString("database.database");
-        String dbUsername = getInstance().getConfig().getString("database.username");
-        char[] dbPassword = getInstance().getConfig().getString("database.password").toCharArray();
+        String dbAddress;
+        int dbPort;
+        String dbDatabase;
+        String dbUsername;
+        char[] dbPassword;
 
         try {
-            getInstance().setDatabase(MariaDatabase.create(dbAddress, dbPort, dbDatabase, dbUsername, dbPassword));
+            dbAddress = getInstance().getConfig().getString("database.address");
+            dbPort = getInstance().getConfig().getInt("database.port");
+            dbDatabase = getInstance().getConfig().getString("database.database");
+            dbUsername = getInstance().getConfig().getString("database.username");
+            dbPassword = getInstance().getConfig().getString("database.password").toCharArray();
+        } catch (NoSuchElementException ex) {
+            getInstance().getLogger().error("Could not find database configuration in config.json.", ex);
+            return;
+        }
+
+        try {
+        /*    getInstance().setDatabase(MariaDatabase.create(dbAddress, dbPort, dbDatabase, dbUsername, dbPassword));
             getInstance().getDatabase().connect();
-            getInstance().getDatabase().setup();
+            getInstance().getDatabase().setup();*/
         } catch (Exception ex) {
             getInstance().getLogger().error("Could not connect to MariaDB database.", ex);
             return;
         }
+
+        // Commands
+        getInstance().getCommandManager().register(new AddVerifyIDCommand());
+        getInstance().getCommandManager().register(new KillSwitchCommand());
+        getInstance().getCommandManager().register(new ListCommand());
+        getInstance().getCommandManager().register(new RemoveVerifyIDCommand());
+        getInstance().getCommandManager().register(new ShutdownCommand());
 
         // Event Listeners
         getInstance().getEventBus().register(getInstance());
@@ -202,16 +230,26 @@ public class Gravity extends Application {
             }
         }
 
-        getInstance().setConsoleScanner(new Scanner(System.in));
-        String input = getInstance().getConsoleScanner().nextLine();
+        // Continuously wait for input on another thread
+        // This doesn't interfere with Pippo as this and Pippo are both running on another thread
+        // The ConsoleInputEvent listeners on the other hand are running on the main thread
+        Thread inputThread = new Thread(() -> {
+            while (getInstance().isRunning()) {
+                getInstance().setConsoleScanner(new Scanner(System.in));
+                String input = getInstance().getConsoleScanner().nextLine();
 
-        ConsoleInputEvent inputEvent = new ConsoleInputEvent(input);
-        getInstance().getEventBus().post(inputEvent);
-        if (inputEvent.getResponses().size() > 0) {
-            for (int i = 0; i < inputEvent.getResponses().size(); i++) {
-                getInstance().getLogger().info(inputEvent.getResponses().get(i));
+                ConsoleInputEvent inputEvent = new ConsoleInputEvent(input);
+                getInstance().getEventBus().post(inputEvent);
+                if (inputEvent.getResponses().size() > 0) {
+                    for (String s : inputEvent.getResponses()) {
+                        getInstance().getLogger().info(s);
+                    }
+                }
             }
-        }
+        });
+        inputThread.setName("Input Thread");
+        inputThread.setPriority(Thread.MAX_PRIORITY);
+        inputThread.run();
     }
 
     @Override
@@ -266,10 +304,12 @@ public class Gravity extends Application {
         stopEvent.addResponse("Thank you and have a nice day.");
         getEventBus().post(stopEvent);
         if (stopEvent.getResponses().size() > 0) {
-            for (int i = 0; i < stopEvent.getResponses().size(); i++) {
-                getInstance().getLogger().info(stopEvent.getResponses().get(i));
+            for (String s : stopEvent.getResponses()) {
+                getInstance().getLogger().info(s);
             }
         }
+
+        getInstance().setRunning(false);
     }
 
     private void addBeforeFilters() {

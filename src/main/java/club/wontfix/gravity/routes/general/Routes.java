@@ -1,4 +1,4 @@
-package club.wontfix.gravity.routes.verify;
+package club.wontfix.gravity.routes.general;
 
 import ro.pippo.core.route.RouteGroup;
 

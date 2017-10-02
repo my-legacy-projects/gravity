@@ -5,7 +5,6 @@ import club.wontfix.gravity.database.Database;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
@@ -17,24 +16,19 @@ public class MariaDatabase implements Database {
     @Getter @Setter
     private HikariDataSource dataSource;
 
-    @NonNull
     private final String address;
 
-    @NonNull
     private final int port;
 
-    @NonNull
     private final String database;
 
-    @NonNull
     private final String username;
 
-    @NonNull
     private final char[] password;
 
     @Override
     public void connect() {
-        if(!isConnected()) {
+        if (!isConnected()) {
             HikariConfig config = new HikariConfig();
             config.setDriverClassName("org.mariadb.jdbc.Driver");
             config.setJdbcUrl("jdbc:mariadb://" + address + ":" + port + "/" + database);
@@ -49,7 +43,7 @@ public class MariaDatabase implements Database {
 
     @Override
     public void disconnect() {
-        if(isConnected()) {
+        if (isConnected()) {
             dataSource.close();
         }
     }
@@ -102,7 +96,7 @@ public class MariaDatabase implements Database {
 
     @Override
     public Connection getConnection() throws SQLException {
-        if(isConnected()) {
+        if (isConnected()) {
             return dataSource.getConnection();
         }
 
@@ -110,21 +104,21 @@ public class MariaDatabase implements Database {
     }
 
     private void close(Statement statement, Connection connection, ResultSet resultSet) {
-        if(statement != null) {
+        if (statement != null) {
             try {
                 statement.close();
             } catch (SQLException ex) {
                 Gravity.getInstance().getLogger().error("Error while closing Statement!", ex);
             }
         }
-        if(connection != null) {
+        if (connection != null) {
             try {
                 connection.close();
             } catch (SQLException ex) {
                 Gravity.getInstance().getLogger().error("Error while closing Connection!", ex);
             }
         }
-        if(resultSet != null) {
+        if (resultSet != null) {
             try {
                 resultSet.close();
             } catch (SQLException ex) {

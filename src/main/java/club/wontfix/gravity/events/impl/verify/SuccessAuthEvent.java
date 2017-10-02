@@ -9,22 +9,19 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import ro.pippo.core.route.RouteContext;
 
+@Getter
 @RequiredArgsConstructor
 public class SuccessAuthEvent extends Cancellable {
 
-    @Getter
     @NonNull
     private final RouteContext context;
 
-    @Getter
     @NonNull
     private final VerifyRequest request;
 
-    @Getter
     @NonNull
     private final VerifyResponse response;
 
-    @Getter
     @NonNull
     private final User user;
 

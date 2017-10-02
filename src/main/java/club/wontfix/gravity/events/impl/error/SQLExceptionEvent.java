@@ -8,18 +8,16 @@ import lombok.Setter;
 
 import java.sql.SQLException;
 
+@Getter
 @RequiredArgsConstructor
 public class SQLExceptionEvent extends Cancellable {
 
-    @Getter
     @NonNull
     private final SQLException exception;
 
-    @Getter
     @Setter
     private int responseCode = 500;
 
-    @Getter
     @Setter
     private String templateToRender = "error.html";
 

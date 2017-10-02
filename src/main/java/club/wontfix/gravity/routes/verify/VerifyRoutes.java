@@ -1,4 +1,4 @@
-package club.wontfix.gravity.routes.general;
+package club.wontfix.gravity.routes.verify;
 
 import club.wontfix.gravity.Gravity;
 import club.wontfix.gravity.easy.User;
@@ -49,7 +49,7 @@ public class VerifyRoutes extends RouteGroup {
                         String hash = Hashing.sha256().hashString(user.getUniqueID(), Charset.forName("UTF-8")).toString();
                         boolean remember = user.isDev() || request.getTrace().getMachineName().equalsIgnoreCase(user.getMachineName());
 
-                        VerifyResponse response = VerifyResponse.create(SUCCESS.getInternalName(), hash, remember, "Success!");
+                        VerifyResponse response = VerifyResponse.create(SUCCESS.name(), hash, remember, "Success!");
 
                         SuccessAuthEvent authEvent = new SuccessAuthEvent(context, request, response, user);
                         Gravity.getInstance().getEventBus().post(authEvent);
@@ -81,7 +81,7 @@ public class VerifyRoutes extends RouteGroup {
                                 // Success!
                                 String hash = Hashing.sha256().hashString(user.getUniqueID(), Charset.forName("UTF-8")).toString();
 
-                                VerifyResponse response = VerifyResponse.create(SUCCESS.getInternalName(), hash, true, "Success!");
+                                VerifyResponse response = VerifyResponse.create(SUCCESS.name(), hash, true, "Success!");
 
                                 SuccessAuthEvent authEvent = new SuccessAuthEvent(context, request, response, user);
                                 Gravity.getInstance().getEventBus().post(authEvent);
@@ -122,7 +122,7 @@ public class VerifyRoutes extends RouteGroup {
                                 // Success!
                                 String hash = Hashing.sha256().hashString(user.getUniqueID(), Charset.forName("UTF-8")).toString();
 
-                                VerifyResponse response = VerifyResponse.create(SUCCESS.getInternalName(), hash, false, "Success!");
+                                VerifyResponse response = VerifyResponse.create(SUCCESS.name(), hash, false, "Success!");
 
                                 SuccessAuthEvent authEvent = new SuccessAuthEvent(context, request, response, user);
                                 Gravity.getInstance().getEventBus().post(authEvent);
@@ -174,7 +174,7 @@ public class VerifyRoutes extends RouteGroup {
     // ---------------------------------------------------------------------------------------
 
     private void errorKillSwitched(RouteContext context) {
-        VerifyResponse response = VerifyResponse.create(KILLSWITCHED.getInternalName(), "null", false,
+        VerifyResponse response = VerifyResponse.create(KILLSWITCHED.name(), "null", false,
                 "Your UniqueID and VerifyID are permanently untrusted."
         );
 
@@ -187,7 +187,7 @@ public class VerifyRoutes extends RouteGroup {
     }
 
     private void errorFailedAuth(RouteContext context) {
-        VerifyResponse response = VerifyResponse.create(FAILURE.getInternalName(), "null", false,
+        VerifyResponse response = VerifyResponse.create(FAILURE.name(), "null", false,
                 "A illegal auth request has been sent. This incident will be reported."
         );
 
@@ -200,7 +200,7 @@ public class VerifyRoutes extends RouteGroup {
     }
 
     private void errorUnknownVerifyID(RouteContext context) {
-        VerifyResponse response = VerifyResponse.create(UNKNOWN_VERIFYID.getInternalName(), "null", false,
+        VerifyResponse response = VerifyResponse.create(UNKNOWN_VERIFYID.name(), "null", false,
                 "The sent Verify ID has not been found in the database."
         );
 
@@ -213,7 +213,7 @@ public class VerifyRoutes extends RouteGroup {
     }
 
     private void errorVerifyIDUniqueIDMismatch(RouteContext context) {
-        VerifyResponse response = VerifyResponse.create(VERIFYID_UNIQUEID_MISMATCH.getInternalName(), "null", false,
+        VerifyResponse response = VerifyResponse.create(VERIFYID_UNIQUEID_MISMATCH.name(), "null", false,
                 "The sent Verify ID mismatches with the registered UniqueID. \n" +
                         "Please message a Coder and tell him to update your UniqueID if you changed your device."
         );
