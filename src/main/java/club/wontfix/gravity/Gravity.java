@@ -221,7 +221,7 @@ public class Gravity extends Application {
         getInstance().getPippo().start();
 
         GravityStartEvent startEvent = new GravityStartEvent();
-        startEvent.addResponse("Hello and welcome to Gravity.");
+        startEvent.addResponse("Hello and welcome to Gravity. Listening on http://" + address + ":" + port + "/");
         startEvent.addResponse("Type \"help\" to receive a list of commands.");
         getInstance().getEventBus().post(startEvent);
         if (startEvent.getResponses().size() > 0) {

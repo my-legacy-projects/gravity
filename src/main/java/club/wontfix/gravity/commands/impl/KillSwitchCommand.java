@@ -2,6 +2,7 @@ package club.wontfix.gravity.commands.impl;
 
 import club.wontfix.gravity.Gravity;
 import club.wontfix.gravity.commands.Command;
+import club.wontfix.gravity.events.impl.actions.KillSwitchEvent;
 
 public class KillSwitchCommand extends Command {
 
@@ -14,12 +15,17 @@ public class KillSwitchCommand extends Command {
     @Override
     public boolean execute(String label, String[] args) {
         if (args.length == 1) {
-            String verifyID = args[0];
+            if (Gravity.getInstance().getEasyDatabase().isVerifyIDBound(args[0])) {
+                KillSwitchEvent killSwitchEvent = new KillSwitchEvent(args[0]);
+                Gravity.getInstance().getEventBus().post(killSwitchEvent);
 
-            if (Gravity.getInstance().getEasyDatabase().isVerifyIDBound(verifyID)) {
-                Gravity.getInstance().getEasyDatabase().killSwitch(verifyID);
+                if (!killSwitchEvent.isCancelled()) {
+                    Gravity.getInstance().getEasyDatabase().killSwitch(args[0]);
 
-                Gravity.getInstance().getLogger().info("Successfully kill switched {}.", verifyID);
+                    Gravity.getInstance().getLogger().info("Successfully kill switched {}.", args[0]);
+                } else {
+                    Gravity.getInstance().getLogger().info("The action has been cancelled.");
+                }
                 return true;
             }
         }
