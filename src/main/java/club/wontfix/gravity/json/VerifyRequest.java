@@ -17,7 +17,7 @@ public class VerifyRequest {
 
     @Getter
     @AllArgsConstructor
-    public class Trace {
+    public static class Trace {
 
         private final String machineName;
 
@@ -33,7 +33,7 @@ public class VerifyRequest {
 
         @Getter
         @AllArgsConstructor
-        public class Mac {
+        public static class Mac {
 
             private final String one;
 

@@ -8,6 +8,10 @@
       <module name="gravity_java" target="1.8" />
       <module name="gravity_main" target="1.8" />
       <module name="gravity_test" target="1.8" />
+      <module name="IdeaProjects-gravity_main" target="1.8" />
+      <module name="IdeaProjects-gravity_main~1" target="1.8" />
+      <module name="IdeaProjects-gravity_test" target="1.8" />
+      <module name="IdeaProjects-gravity_test~1" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>

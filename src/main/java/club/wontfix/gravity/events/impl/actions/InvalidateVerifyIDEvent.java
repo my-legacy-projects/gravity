@@ -12,4 +12,7 @@ public class InvalidateVerifyIDEvent extends Cancellable {
     @NonNull
     private final String verifyID;
 
+    @NonNull
+    private final String name;
+
 }

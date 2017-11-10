@@ -27,6 +27,8 @@ public class KillSwitchCommand extends Command {
                     Gravity.getInstance().getLogger().info("The action has been cancelled.");
                 }
                 return true;
+            } else {
+                Gravity.getInstance().getLogger().error("Could not find {} in database.", args[0]);
             }
         }
 

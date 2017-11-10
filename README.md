@@ -10,7 +10,12 @@
 * Provides authentication for Project Spartan users
 * Automatically logs IP-Address and UniqueID
 * Automatically notifies Coders when a invalid auth request was received
+* Discord Bot
 * ...and much more.
+
+## Discord Bot
+
+![Robots are cute!](https://i.imgur.com/CioONPe.jpg)
 
 ## Installation
 
@@ -28,11 +33,8 @@ $ java -jar gravity.jar --ip 127.0.0.1 --port 7777
 
 For reference please visit the client side protection of Project Spartan.
 
-## License & Credits
+## License
 
-Gravity is closed source and is licensed under the Project Spartan Private License. 
+Gravity is part of [Project Spartan](https://cantvac.me) - It is closed source 
+and is licensed under the Project Spartan Private License. 
 Visit the `LICENSE.txt` file for more information.
-
-
-
-MarcIsAWeeb © 2k17-2k17

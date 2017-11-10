@@ -15,6 +15,7 @@ public class ShutdownCommand extends Command {
     public boolean execute(String label, String[] args) {
         if (args.length == 0) {
             Gravity.getInstance().getPippo().stop();
+            System.exit(0);
             return true;
         }
         return false;

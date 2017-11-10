@@ -11,5 +11,43 @@
       "database": "gravity",
       "username": "root",
       "password": "passw0rd"
+   },
+   "discord": {
+      "token": "xxx",
+      "avatar": "https://maxcdn.icons8.com/Color/PNG/512/Sports/centre_of_gravity-512.png",
+      "stream": "https://twitch.tv/monstercat",
+      "server": 336453128033533963,
+      "channel": 364091324670017536,
+      "permitted": {
+         "guilds": {
+            "Project Spartan": 336453128033533963
+         },
+         "channels": {
+            "#development": 341387466797875204
+         },
+         "roles": {
+            "dev": 336453524265369602
+         }
+      },
+      "assign": {
+         "sudoers": {
+            "Raspbian": 243321928033501184,
+            "Marc3842h": 316627148221972491,
+            "Apostrophe": 217211985748688899,
+            "Dexter": 221261964565807105,
+            "ikfe": 209350930750111744,
+            "HBK": 181801166928084992,
+            "Myrrib": 153466280295268352,
+            "Richi": 283609173160361984
+         },
+         "normies": {
+            "kiop": 229977096078753793,
+            "Amos": 95625759741194240,
+            "Mountaser": 226436244228407297,
+            "Qxin": 216530256146857984,
+            "Theo": 352012442680819712,
+            "xitero": 283759583112069132
+         }
+      }
    }
 }

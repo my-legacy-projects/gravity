@@ -4,6 +4,7 @@ import club.wontfix.gravity.bootstrap.StartupOptions;
 import club.wontfix.gravity.commands.CommandManager;
 import club.wontfix.gravity.commands.impl.*;
 import club.wontfix.gravity.database.Database;
+import club.wontfix.gravity.discord.DiscordBotManager;
 import club.wontfix.gravity.easy.EasyDatabase;
 import club.wontfix.gravity.events.impl.bootstrap.GravityStartEvent;
 import club.wontfix.gravity.events.impl.bootstrap.GravityStopEvent;
@@ -36,6 +37,7 @@ import ro.pippo.core.route.CSRFHandler;
 import ro.pippo.core.route.PublicResourceHandler;
 import ro.pippo.core.route.WebjarsResourceHandler;
 import ro.pippo.freemarker.FreemarkerTemplateEngine;
+import sx.blah.discord.api.ClientBuilder;
 
 import java.io.File;
 import java.io.IOException;
@@ -44,6 +46,8 @@ import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 @MetaInfServices
 public class Gravity extends Application {
@@ -81,9 +85,19 @@ public class Gravity extends Application {
     @Getter(lazy = true)
     private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
+    @Getter(lazy = true)
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(15);
+
+    @Getter
+    @Setter
+    private Thread inputThread;
+
     @Getter
     @Setter
     private boolean running = false;
+
+    @Getter(lazy = true)
+    private final DiscordBotManager discordBotManager = new DiscordBotManager();
 
     public static void main(String[] args) {
         getInstance().setRunning(true);
@@ -203,6 +217,21 @@ public class Gravity extends Application {
             return;
         }
 
+        Thread discordThread = new Thread(() -> {
+            getInstance().getDiscordBotManager().setDiscordClient(new ClientBuilder()
+                    .withToken(getInstance().getConfig().getString("discord.token"))
+                    .withRecommendedShardCount()
+                    .withMinimumDispatchThreads(5)
+                    .setMaxMessageCacheCount(0)
+                    .withMaximumDispatchThreads(15)
+                    .build());
+            getInstance().getDiscordBotManager().getDiscordClient().login();
+            getInstance().getDiscordBotManager().initialize();
+        });
+        discordThread.setName("Discord");
+        discordThread.setPriority(7);
+        discordThread.run();
+
         // Commands
         getInstance().getCommandManager().register(new AddVerifyIDCommand());
         getInstance().getCommandManager().register(new KillSwitchCommand());
@@ -214,6 +243,7 @@ public class Gravity extends Application {
         getInstance().getEventBus().register(getInstance());
         getInstance().getEventBus().register(new ConsoleInputListener());
         getInstance().getEventBus().register(new ShutdownListener());
+        getInstance().getEventBus().register(getInstance().getDiscordBotManager());
 
         getInstance().setPippo(new Pippo(getInstance()));
         getInstance().getPippo().getServer().getSettings().host(address);
@@ -230,10 +260,20 @@ public class Gravity extends Application {
             }
         }
 
+        Thread thread = new Thread(() -> {
+            while (getInstance().isRunning()) {
+            }
+
+            getInstance().getDiscordBotManager().getStatusFuture().cancel(true);
+        });
+        thread.setName("Discord Watchdog");
+        thread.setPriority(Thread.NORM_PRIORITY);
+        thread.run();
+
         // Continuously wait for input on another thread
         // This doesn't interfere with Pippo as this and Pippo are both running on another thread
         // The ConsoleInputEvent listeners on the other hand are running on the main thread
-        Thread inputThread = new Thread(() -> {
+        getInstance().setInputThread(new Thread(() -> {
             while (getInstance().isRunning()) {
                 getInstance().setConsoleScanner(new Scanner(System.in));
                 String input = getInstance().getConsoleScanner().nextLine();
@@ -246,10 +286,10 @@ public class Gravity extends Application {
                     }
                 }
             }
-        });
-        inputThread.setName("Input Thread");
-        inputThread.setPriority(Thread.MAX_PRIORITY);
-        inputThread.run();
+        }));
+        getInstance().getInputThread().setName("Input");
+        getInstance().getInputThread().setPriority(Thread.NORM_PRIORITY);
+        getInstance().getInputThread().run();
     }
 
     @Override
@@ -300,8 +340,15 @@ public class Gravity extends Application {
 
     @Override
     protected void onDestroy() {
+        if (getDatabase() != null && getDatabase().isConnected()) {
+            getDatabase().disconnect();
+        }
+
+        if (getDiscordBotManager() != null) {
+            getDiscordBotManager().destroy();
+        }
+
         GravityStopEvent stopEvent = new GravityStopEvent();
-        stopEvent.addResponse("Thank you and have a nice day.");
         getEventBus().post(stopEvent);
         if (stopEvent.getResponses().size() > 0) {
             for (String s : stopEvent.getResponses()) {

@@ -13,13 +13,13 @@ import ro.pippo.core.route.RouteContext;
 @RequiredArgsConstructor
 public class SuccessAuthEvent extends Cancellable {
 
-    @NonNull
+    //@NonNull
     private final RouteContext context;
 
     @NonNull
     private final VerifyRequest request;
 
-    @NonNull
+    //@NonNull
     private final VerifyResponse response;
 
     @NonNull

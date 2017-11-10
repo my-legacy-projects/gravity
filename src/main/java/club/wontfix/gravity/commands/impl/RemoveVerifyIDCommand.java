@@ -17,24 +17,28 @@ public class RemoveVerifyIDCommand extends Command {
         if (args.length == 1) {
             String verifyID = args[0];
 
-            InvalidateVerifyIDEvent invalidateEvent = new InvalidateVerifyIDEvent(verifyID);
-            Gravity.getInstance().getEventBus().post(invalidateEvent);
+            if (Gravity.getInstance().getEasyDatabase().isVerifyIDBound(verifyID)) {
+                String name = Gravity.getInstance().getEasyDatabase().getUserFromVerifyID(verifyID).getName();
 
-            if (!invalidateEvent.isCancelled()) {
-                if (Gravity.getInstance().getEasyDatabase().isVerifyIDBound(verifyID)) {
+                InvalidateVerifyIDEvent invalidateEvent = new InvalidateVerifyIDEvent(verifyID, name);
+                Gravity.getInstance().getEventBus().post(invalidateEvent);
+                if (!invalidateEvent.isCancelled()) {
                     Gravity.getInstance().getEasyDatabase().unregisterUserUsingVerifyID(verifyID);
 
-                    Gravity.getInstance().getLogger().info("Successfully removed {0} from the database.", verifyID);
-                } else if (Gravity.getInstance().getEasyDatabase().isVerifyIDWaiting(verifyID)) {
+                    Gravity.getInstance().getLogger().info("Successfully removed {} from database.", verifyID);
+                }
+            } else if (Gravity.getInstance().getEasyDatabase().isVerifyIDWaiting(verifyID)) {
+                InvalidateVerifyIDEvent invalidateEvent = new InvalidateVerifyIDEvent(verifyID, "__PENDING__");
+                Gravity.getInstance().getEventBus().post(invalidateEvent);
+                if (!invalidateEvent.isCancelled()) {
                     Gravity.getInstance().getEasyDatabase().unregisterWaitingVerifyID(verifyID);
 
-                    Gravity.getInstance().getLogger().info("Successfully revoked {0} from the pending database.", verifyID);
-                } else {
-                    Gravity.getInstance().getLogger().error("Inputted Verify ID has not been found in the database.");
+                    Gravity.getInstance().getLogger().info("Successfully removed {} from pending queue.", verifyID);
                 }
             } else {
-                Gravity.getInstance().getLogger().info("The action has been cancelled.");
+                Gravity.getInstance().getLogger().error("Could not find {} in either database or pending queue.", verifyID);
             }
+
             return true;
         }
 
