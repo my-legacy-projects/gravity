@@ -71,8 +71,6 @@ public class MariaDatabase implements Database {
             statement.executeUpdate();
         } catch (SQLException ex) {
             Gravity.getInstance().getLogger().error("Error while executing SQL Update!", ex);
-        } finally {
-            close(statement, connection, null);
         }
     }
 
@@ -87,8 +85,6 @@ public class MariaDatabase implements Database {
             resultSet = statement.executeQuery();
         } catch (SQLException ex) {
             Gravity.getInstance().getLogger().error("Error while executing SQL Query!", ex);
-        } finally {
-            close(statement, connection, resultSet);
         }
 
         return resultSet;

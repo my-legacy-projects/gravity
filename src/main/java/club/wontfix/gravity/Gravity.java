@@ -4,6 +4,7 @@ import club.wontfix.gravity.bootstrap.StartupOptions;
 import club.wontfix.gravity.commands.CommandManager;
 import club.wontfix.gravity.commands.impl.*;
 import club.wontfix.gravity.database.Database;
+import club.wontfix.gravity.database.impl.MariaDatabase;
 import club.wontfix.gravity.discord.DiscordBotManager;
 import club.wontfix.gravity.easy.EasyDatabase;
 import club.wontfix.gravity.events.impl.bootstrap.GravityStartEvent;
@@ -209,9 +210,9 @@ public class Gravity extends Application {
         }
 
         try {
-        /*    getInstance().setDatabase(MariaDatabase.create(dbAddress, dbPort, dbDatabase, dbUsername, dbPassword));
+            getInstance().setDatabase(MariaDatabase.create(dbAddress, dbPort, dbDatabase, dbUsername, dbPassword));
             getInstance().getDatabase().connect();
-            getInstance().getDatabase().setup();*/
+            getInstance().getDatabase().setup();
         } catch (Exception ex) {
             getInstance().getLogger().error("Could not connect to MariaDB database.", ex);
             return;
